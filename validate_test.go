@@ -14,8 +14,8 @@ func TestValidate(t *testing.T) {
 	t.Run("", func(t *testing.T) {
 		r := Req{Name: "aha", Age: 3}
 		err := Validate(
-			NewOrdered("Name", r.Name).Required(),
-			NewOrdered("Age", r.Age).Gte(18),
+			Ordered("Name", r.Name).Required(),
+			Ordered("Age", r.Age).Gte(18),
 		)
 		assert.Error(t, err)
 	})
@@ -23,8 +23,8 @@ func TestValidate(t *testing.T) {
 	t.Run("", func(t *testing.T) {
 		r := Req{Name: "aha", Age: 20}
 		err := Validate(
-			NewOrdered("Name", r.Name).Required(),
-			NewOrdered("Age", r.Age).Gte(18),
+			Ordered("Name", r.Name).Required(),
+			Ordered("Age", r.Age).Gte(18),
 		)
 		assert.Nil(t, err)
 	})
@@ -39,8 +39,8 @@ func TestValidateErrors(t *testing.T) {
 	t.Run("", func(t *testing.T) {
 		r := Req{Name: "aha", Age: 3}
 		err := ValidateErrors(
-			NewOrdered("Name", r.Name).Required().Err(),
-			NewOrdered("Age", r.Age).Gte(18).Err(),
+			Ordered("Name", r.Name).Required().Err(),
+			Ordered("Age", r.Age).Gte(18).Err(),
 		)
 		assert.Error(t, err)
 	})
@@ -48,8 +48,8 @@ func TestValidateErrors(t *testing.T) {
 	t.Run("", func(t *testing.T) {
 		r := Req{Name: "aha", Age: 20}
 		err := ValidateErrors(
-			NewOrdered("Name", r.Name).Required().Err(),
-			NewOrdered("Age", r.Age).Gte(18).Err(),
+			Ordered("Name", r.Name).Required().Err(),
+			Ordered("Age", r.Age).Gte(18).Err(),
 		)
 		assert.Nil(t, err)
 	})

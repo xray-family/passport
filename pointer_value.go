@@ -10,7 +10,7 @@ type PointerValue[T any] struct {
 	value *T
 }
 
-func NewPointer[T any](k string, v *T) *PointerValue[T] {
+func Pointer[T any](k string, v *T) *PointerValue[T] {
 	return &PointerValue[T]{
 		key:   k,
 		value: v,

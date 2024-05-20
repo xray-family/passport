@@ -15,18 +15,18 @@ go get -v github.com/lxzan/passport@latest
 
 ```go
 type Req struct {
-	Name  string `json:"name"`
-	Typ   int    `json:"typ"`
-	Age   int    `json:"age"`
-	Roles []int  `json:"roles"`
+    Name  string `json:"name"`
+    Typ   int    `json:"typ"`
+    Age   int    `json:"age"`
+    Roles []int  `json:"roles"`
 }
 
 func (c *Req) Validate() error {
-	return passport.Validate(
-		passport.NewString("Name", c.Name).Required().Alphabet(),
-		passport.NewOrdered("Typ", c.Typ).IncludeBy(1, 3, 5),
-		passport.NewOrdered("Age", c.Age).Gte(18),
-		passport.NewSlice("Roles", c.Roles).Required(),
-	)
+    return passport.Validate(
+        passport.String("Name", c.Name).Required().Alphabet(),
+        passport.Ordered("Typ", c.Typ).IncludeBy(1, 3, 5),
+        passport.Ordered("Age", c.Age).Gte(18),
+        passport.Slice("Roles", c.Roles).Required(),
+    )
 }
 ```

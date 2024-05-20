@@ -11,7 +11,7 @@ type OrderedValue[T cmp.Ordered] struct {
 	val T
 }
 
-func NewOrdered[T cmp.Ordered](k string, v T) *OrderedValue[T] {
+func Ordered[T cmp.Ordered](k string, v T) *OrderedValue[T] {
 	return &OrderedValue[T]{
 		key: k,
 		val: v,

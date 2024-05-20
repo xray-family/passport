@@ -20,7 +20,7 @@ type StringValue[T ~string] struct {
 	val T
 }
 
-func NewString[T ~string](k string, v T) *StringValue[T] {
+func String[T ~string](k string, v T) *StringValue[T] {
 	return &StringValue[T]{
 		key: k,
 		val: v,
@@ -43,24 +43,24 @@ func (c *StringValue[T]) Required() *StringValue[T] {
 	return c.validate(!isZero(c.val), "%s is required", c.key)
 }
 
-func (c *StringValue[T]) LenEq(v int) *StringValue[T] {
-	return c.validate(len(c.val) == v, "length of %s should equal %v", c.key, v)
+func (c *StringValue[T]) Eq(v int) *StringValue[T] {
+	return c.validate(len(c.val) == v, "Gth of %s should equal %v", c.key, v)
 }
 
-func (c *StringValue[T]) LenGt(v int) *StringValue[T] {
-	return c.validate(len(c.val) > v, "length of %s should great than %v", c.key, v)
+func (c *StringValue[T]) Gt(v int) *StringValue[T] {
+	return c.validate(len(c.val) > v, "Gth of %s should great than %v", c.key, v)
 }
 
-func (c *StringValue[T]) LenGte(v int) *StringValue[T] {
-	return c.validate(len(c.val) >= v, "length of %s should great or equal than %v", c.key, v)
+func (c *StringValue[T]) Gte(v int) *StringValue[T] {
+	return c.validate(len(c.val) >= v, "Gth of %s should great or equal than %v", c.key, v)
 }
 
-func (c *StringValue[T]) LenLt(v int) *StringValue[T] {
-	return c.validate(len(c.val) < v, "length of %s should less than %v", c.key, v)
+func (c *StringValue[T]) Lt(v int) *StringValue[T] {
+	return c.validate(len(c.val) < v, "Gth of %s should less than %v", c.key, v)
 }
 
-func (c *StringValue[T]) LenLte(v int) *StringValue[T] {
-	return c.validate(len(c.val) <= v, "length of %s should less or equal than %v", c.key, v)
+func (c *StringValue[T]) Lte(v int) *StringValue[T] {
+	return c.validate(len(c.val) <= v, "Gth of %s should less or equal than %v", c.key, v)
 }
 
 func (c *StringValue[T]) IncludeBy(args ...T) *StringValue[T] {

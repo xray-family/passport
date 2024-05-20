@@ -11,7 +11,7 @@ type SlicedValue[T cmp.Ordered] struct {
 	val []T
 }
 
-func NewSlice[T cmp.Ordered](k string, v []T) *SlicedValue[T] {
+func Slice[T cmp.Ordered](k string, v []T) *SlicedValue[T] {
 	return &SlicedValue[T]{
 		key: k,
 		val: v,
@@ -34,23 +34,23 @@ func (c *SlicedValue[T]) Required() *SlicedValue[T] {
 	return c.validate(len(c.val) > 0, "%s is required", c.key)
 }
 
-func (c *SlicedValue[T]) LenEq(v int) *SlicedValue[T] {
+func (c *SlicedValue[T]) Eq(v int) *SlicedValue[T] {
 	return c.validate(len(c.val) == v, "size of %s should equal %v", c.key, v)
 }
 
-func (c *SlicedValue[T]) LenGt(v int) *SlicedValue[T] {
+func (c *SlicedValue[T]) Gt(v int) *SlicedValue[T] {
 	return c.validate(len(c.val) > v, "size of %s should great than %v", c.key, v)
 }
 
-func (c *SlicedValue[T]) LenGte(v int) *SlicedValue[T] {
+func (c *SlicedValue[T]) Gte(v int) *SlicedValue[T] {
 	return c.validate(len(c.val) >= v, "size of %s should great or equal than %v", c.key, v)
 }
 
-func (c *SlicedValue[T]) LenLt(v int) *SlicedValue[T] {
+func (c *SlicedValue[T]) Lt(v int) *SlicedValue[T] {
 	return c.validate(len(c.val) < v, "size of %s should less than %v", c.key, v)
 }
 
-func (c *SlicedValue[T]) LenLte(v int) *SlicedValue[T] {
+func (c *SlicedValue[T]) Lte(v int) *SlicedValue[T] {
 	return c.validate(len(c.val) <= v, "size of %s should less or equal than %v", c.key, v)
 }
 
