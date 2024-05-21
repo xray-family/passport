@@ -6,19 +6,19 @@ import (
 )
 
 type PointerValue[T any] struct {
-	err        error
-	key        string
-	val        *T
-	mark       bool
-	localizer  *i18n.Localizer
-	config     *i18n.LocalizeConfig
-	messageMap map[string]*i18n.Message
+	err       error
+	key       string
+	val       *T
+	mark      bool
+	localizer *i18n.Localizer
+	config    *i18n.LocalizeConfig
 }
 
 func Pointer[T any](k string, v *T) *PointerValue[T] {
 	return &PointerValue[T]{
-		key: k,
-		val: v,
+		key:       k,
+		val:       v,
+		localizer: GetLocalizer(),
 	}
 }
 
@@ -31,7 +31,6 @@ func (c *PointerValue[T]) validate(messageId string, ok bool, val any) *PointerV
 		return c
 	}
 	c.mark = true
-	messageId = "PointerValue." + messageId
 	c.config = &i18n.LocalizeConfig{
 		MessageID:    messageId,
 		TemplateData: map[string]any{"Key": c.key, "Value": val},
@@ -47,20 +46,6 @@ func (c *PointerValue[T]) Err() error {
 		return c.err
 	}
 
-	if c.localizer == nil {
-		c.localizer = i18n.NewLocalizer(_bundle, defaultLanguages...)
-	}
-
-	if len(c.messageMap) > 0 {
-		if message := c.messageMap[c.config.MessageID]; message != nil {
-			c.config.DefaultMessage = message
-			c.config.MessageID, c.config.DefaultMessage.ID = "!undefined", "!undefined"
-			str, _ := c.localizer.Localize(c.config)
-			c.err = errors.New(str)
-			return c.err
-		}
-	}
-
 	str, err := c.localizer.Localize(c.config)
 	if err != nil {
 		c.err = err
@@ -72,23 +57,9 @@ func (c *PointerValue[T]) Err() error {
 }
 
 func (c *PointerValue[T]) Required() *PointerValue[T] {
-	return c.validate("Required", c.val != nil, nil)
+	return c.validate("PointerValue.Required", c.val != nil, nil)
 }
 
-func (c *PointerValue[T]) Customize(layout string, f func(*T) bool) *PointerValue[T] {
-	const funcName = "Customize"
-	return c.validate(funcName, f(c.val), nil).Message(funcName, layout)
-}
-
-// Message customizing error messages
-func (c *PointerValue[T]) Message(funcName string, layout string) *PointerValue[T] {
-	if c.messageMap == nil {
-		c.messageMap = make(map[string]*i18n.Message)
-	}
-	id := "PointerValue." + funcName
-	c.messageMap[id] = &i18n.Message{
-		ID:    id,
-		Other: layout,
-	}
-	return c
+func (c *PointerValue[T]) Customize(messageId string, f func(*T) bool) *PointerValue[T] {
+	return c.validate(messageId, f(c.val), nil)
 }

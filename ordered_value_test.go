@@ -3,6 +3,7 @@ package passport
 import (
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/text/language"
 	"testing"
 )
 
@@ -40,15 +41,9 @@ func TestOrderedValue_Lte(t *testing.T) {
 }
 
 func TestOrderedValue_Include(t *testing.T) {
-	assert.Error(t, Ordered("age", 2).IncludeBy(1, 3, 5).Err())
-	assert.Error(t, Ordered("age", 0).Required().IncludeBy(1, 3, 5).Err())
-	assert.Nil(t, Ordered("age", 3).IncludeBy(1, 3, 5).Err())
-}
-
-func TestOrderedValue_Exclude(t *testing.T) {
-	assert.Nil(t, Ordered("age", 2).ExcludeBy(1, 3, 5).Err())
-	assert.Error(t, Ordered("age", 0).Required().ExcludeBy(1, 3, 5).Err())
-	assert.Error(t, Ordered("age", 3).ExcludeBy(1, 3, 5).Err())
+	assert.Error(t, Ordered("age", 2).In(1, 3, 5).Err())
+	assert.Error(t, Ordered("age", 0).Required().In(1, 3, 5).Err())
+	assert.Nil(t, Ordered("age", 3).In(1, 3, 5).Err())
 }
 
 func TestOrderedValue_Err(t *testing.T) {
@@ -61,11 +56,6 @@ func TestOrderedValue_Err(t *testing.T) {
 	})
 
 	t.Run("", func(t *testing.T) {
-		var v = Ordered("age", 1).Gt(18).Message("Gt", "aha")
-		assert.Error(t, v.Err())
-	})
-
-	t.Run("", func(t *testing.T) {
 		var v = Ordered("age", 1).Gt(18)
 		v.config.MessageID = "oh"
 		assert.Error(t, v.Err())
@@ -73,17 +63,21 @@ func TestOrderedValue_Err(t *testing.T) {
 }
 
 func TestOrderedValue_Customize(t *testing.T) {
+	tag := language.Make("en-US")
+	message := &i18n.Message{
+		ID:    "Customize",
+		Other: "未成年人禁止入内",
+	}
+	_ = GetBundle().AddMessages(tag, message)
 	t.Run("", func(t *testing.T) {
-		const notice = "未成年人禁止入内"
-		var msg = Ordered("age", 1).Customize(notice, func(i int) bool {
+		var msg = Ordered("age", 1).Customize(message.ID, func(i int) bool {
 			return i >= 18
 		}).Err().Error()
-		assert.Equal(t, msg, notice)
+		assert.Equal(t, msg, message.Other)
 	})
 
 	t.Run("", func(t *testing.T) {
-		const notice = "未成年人禁止入内"
-		var err = Ordered("age", 20).Customize(notice, func(i int) bool {
+		var err = Ordered("age", 20).Customize(message.ID, func(i int) bool {
 			return i >= 18
 		}).Err()
 		assert.Nil(t, err)

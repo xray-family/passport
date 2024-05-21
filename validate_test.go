@@ -2,12 +2,12 @@ package passport
 
 import (
 	"github.com/stretchr/testify/assert"
-	"net/http"
 	"testing"
 )
 
 func TestValidate(t *testing.T) {
-	SetLang("en-US")
+	GetBundle()
+	GetLocalizer()
 
 	type Req struct {
 		Name string
@@ -43,12 +43,16 @@ func TestValidate(t *testing.T) {
 
 	t.Run("", func(t *testing.T) {
 		r := Req{Name: "aha", Age: 15}
-		h := http.Header{}
-		h.Set("Accept-Language", "zh-CN")
-		err := NewValidatorFromHTTP(h).Validate(
+		err := NewValidator("zh-CN").Validate(
 			Ordered("Name", r.Name).Required(),
 			Ordered("Age", r.Age).Gte(18),
 		)
 		assert.Equal(t, err.Error(), "Age必须大于等于18")
 	})
+}
+
+func TestValidator_Localize(t *testing.T) {
+	GetBundle().LoadMessageFile("./asset/test.zh-CN.toml")
+	var s = NewValidator("zh-CN").Localize("Request.Name")
+	assert.Equal(t, s, "名字")
 }

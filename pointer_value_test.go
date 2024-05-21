@@ -2,7 +2,9 @@ package passport
 
 import (
 	"errors"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/text/language"
 	"net/http"
 	"testing"
 )
@@ -28,17 +30,22 @@ func TestPointerValue_Required(t *testing.T) {
 }
 
 func TestPointerValue_Customize(t *testing.T) {
+	tag := language.Make("en-US")
+	message := &i18n.Message{
+		ID:    "Customize",
+		Other: "未成年人禁止入内",
+	}
+	_ = GetBundle().AddMessages(tag, message)
+
 	t.Run("", func(t *testing.T) {
-		const notice = "不要大声喧哗"
-		var msg = Pointer("age", &http.Request{}).Customize(notice, func(i *http.Request) bool {
+		var msg = Pointer("age", &http.Request{}).Customize(message.ID, func(i *http.Request) bool {
 			return i == nil
 		}).Err().Error()
-		assert.Equal(t, msg, notice)
+		assert.Equal(t, msg, message.Other)
 	})
 
 	t.Run("", func(t *testing.T) {
-		const notice = "不要大声喧哗"
-		var err = Pointer("age", &http.Request{}).Customize(notice, func(i *http.Request) bool {
+		var err = Pointer("age", &http.Request{}).Customize(message.ID, func(i *http.Request) bool {
 			return i != nil
 		}).Err()
 		assert.Nil(t, err)

@@ -1,7 +1,9 @@
 package passport
 
 import (
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/text/language"
 	"testing"
 )
 
@@ -77,33 +79,30 @@ func TestSliceValue_Lte(t *testing.T) {
 func TestSliceValue_Include(t *testing.T) {
 	var a1 = []int{1, 3, 5}
 	var a2 []int
-	assert.Error(t, Slice("age", a1).Include(2).Err())
-	assert.Error(t, Slice("age", a2).Required().Include(1).Err())
-	assert.Nil(t, Slice("age", a1).Include(1).Err())
-}
-
-func TestSliceValue_Exclude(t *testing.T) {
-	var a1 = []int{1, 3, 5}
-	var a2 []int
-	assert.Error(t, Slice("age", a1).Exclude(1).Err())
-	assert.Error(t, Slice("age", a2).Required().Exclude(1).Err())
-	assert.Nil(t, Slice("age", a1).Exclude(2).Err())
+	assert.Error(t, Slice("age", a1).Contains(2).Err())
+	assert.Error(t, Slice("age", a2).Required().Contains(1).Err())
+	assert.Nil(t, Slice("age", a1).Contains(1).Err())
 }
 
 func TestSliceValue_Customize(t *testing.T) {
+	tag := language.Make("en-US")
+	message := &i18n.Message{
+		ID:    "Customize",
+		Other: "未成年人禁止入内",
+	}
+	_ = GetBundle().AddMessages(tag, message)
+
 	t.Run("", func(t *testing.T) {
-		const notice = "不要大声喧哗"
 		var arr []int
-		var msg = Slice("age", arr).Customize(notice, func(i []int) bool {
+		var msg = Slice("age", arr).Customize(message.ID, func(i []int) bool {
 			return len(i) >= 18
 		}).Err().Error()
-		assert.Equal(t, msg, notice)
+		assert.Equal(t, msg, message.Other)
 	})
 
 	t.Run("", func(t *testing.T) {
-		const notice = "不要大声喧哗"
 		var arr []int
-		var err = Slice("age", arr).Customize(notice, func(i []int) bool {
+		var err = Slice("age", arr).Customize(message.ID, func(i []int) bool {
 			return len(i) >= 0
 		}).Err()
 		assert.Nil(t, err)

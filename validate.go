@@ -2,7 +2,6 @@ package passport
 
 import (
 	"github.com/nicksnyder/go-i18n/v2/i18n"
-	"net/http"
 )
 
 type Value interface {
@@ -15,15 +14,11 @@ type Validator struct {
 }
 
 func NewValidator(langs ...string) *Validator {
-	return &Validator{
-		localizer: i18n.NewLocalizer(_bundle, langs...),
+	var localizer = GetLocalizer()
+	if len(langs) > 0 {
+		localizer = i18n.NewLocalizer(_bundle, langs...)
 	}
-}
-
-func NewValidatorFromHTTP(header http.Header) *Validator {
-	return &Validator{
-		localizer: i18n.NewLocalizer(_bundle, header.Get("Accept-Language")),
-	}
+	return &Validator{localizer: localizer}
 }
 
 func (c *Validator) Validate(values ...Value) error {
@@ -34,6 +29,12 @@ func (c *Validator) Validate(values ...Value) error {
 		}
 	}
 	return nil
+}
+
+// Localize translation into the given language
+func (c *Validator) Localize(messageId string) string {
+	s, _ := c.localizer.Localize(&i18n.LocalizeConfig{MessageID: messageId})
+	return s
 }
 
 func Validate(values ...Value) error {

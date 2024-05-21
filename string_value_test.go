@@ -3,7 +3,9 @@ package passport
 import (
 	"encoding/base64"
 	"encoding/hex"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/text/language"
 	"regexp"
 	"testing"
 )
@@ -12,6 +14,8 @@ func TestStringValue_Required(t *testing.T) {
 	assert.Error(t, String("name", "").Required().Err())
 	assert.Error(t, String("name", "0").Gt(1).Required().Err())
 	assert.Nil(t, String("name", "aha").Required().Err())
+	assert.Error(t, String("name", " ").Required().Err())
+	assert.Error(t, String("name", "\n").Required().Err())
 
 	t.Run("", func(t *testing.T) {
 		var err = NewValidator("zh-CN").Validate(
@@ -53,15 +57,9 @@ func TestStringValue_Lte(t *testing.T) {
 }
 
 func TestStringValue_Include(t *testing.T) {
-	assert.Error(t, String("age", "2").IncludeBy("1", "3", "5").Err())
-	assert.Error(t, String("age", "").Required().IncludeBy("1", "3", "5").Err())
-	assert.Nil(t, String("age", "3").IncludeBy("1", "3", "5").Err())
-}
-
-func TestStringValue_Exclude(t *testing.T) {
-	assert.Nil(t, String("age", "2").ExcludeBy("1", "3", "5").Err())
-	assert.Error(t, String("age", "").Required().ExcludeBy("1", "3", "5").Err())
-	assert.Error(t, String("age", "3").ExcludeBy("1", "3", "5").Err())
+	assert.Error(t, String("age", "2").In("1", "3", "5").Err())
+	assert.Error(t, String("age", "").Required().In("1", "3", "5").Err())
+	assert.Nil(t, String("age", "3").In("1", "3", "5").Err())
 }
 
 func TestStringValue_Email(t *testing.T) {
@@ -152,9 +150,13 @@ func TestStringValue_MatchRegexp(t *testing.T) {
 }
 
 func TestStringValue_Customize(t *testing.T) {
+	_ = GetBundle().AddMessages(language.Make("en-US"), &i18n.Message{
+		ID:    "Customize",
+		Other: "莫要喧哗",
+	})
 	t.Run("", func(t *testing.T) {
 		const notice = "莫要喧哗"
-		var msg = String("age", "1").Customize(notice, func(s string) bool {
+		var msg = String("age", "1").Customize("Customize", func(s string) bool {
 			return false
 		}).Err().Error()
 		assert.Equal(t, msg, notice)
@@ -162,7 +164,7 @@ func TestStringValue_Customize(t *testing.T) {
 
 	t.Run("", func(t *testing.T) {
 		const notice = "莫要喧哗"
-		var err = String("age", "2").Customize(notice, func(s string) bool {
+		var err = String("age", "2").Customize("Customize", func(s string) bool {
 			return true
 		}).Err()
 		assert.Nil(t, err)
