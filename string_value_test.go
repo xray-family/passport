@@ -12,6 +12,13 @@ func TestStringValue_Required(t *testing.T) {
 	assert.Error(t, String("name", "").Required().Err())
 	assert.Error(t, String("name", "0").Gt(1).Required().Err())
 	assert.Nil(t, String("name", "aha").Required().Err())
+
+	t.Run("", func(t *testing.T) {
+		var err = NewValidator("zh-CN").Validate(
+			String("名字", "").Required(),
+		)
+		assert.Equal(t, err.Error(), "名字不能为空")
+	})
 }
 
 func TestStringValue_Gt(t *testing.T) {
@@ -130,10 +137,34 @@ func TestStringValue_MatchString(t *testing.T) {
 		var flateTail = []byte{0x00, 0x00, 0xff, 0xff, 0x01, 0x00, 0x00, 0xff, 0xff}
 		assert.Error(t, String("name", "abc").MatchString(string(flateTail)).Err())
 	})
+
+	t.Run("", func(t *testing.T) {
+		var value = String("name", "").Required()
+		value.Err()
+		assert.Error(t, value.Err())
+	})
 }
 
 func TestStringValue_MatchRegexp(t *testing.T) {
 	assert.Nil(t, String("name", "ABC").MatchRegexp(regexp.MustCompile(`^[A-Z]+$`)).Err())
 	assert.Error(t, String("name", "ABCd").MatchRegexp(regexp.MustCompile(`^[A-Z]+$`)).Err())
 	assert.Error(t, String("name", string([]byte{})).Required().MatchRegexp(regexp.MustCompile(`^[A-Z]+$`)).Err())
+}
+
+func TestStringValue_Customize(t *testing.T) {
+	t.Run("", func(t *testing.T) {
+		const notice = "莫要喧哗"
+		var msg = String("age", "1").Customize(notice, func(s string) bool {
+			return false
+		}).Err().Error()
+		assert.Equal(t, msg, notice)
+	})
+
+	t.Run("", func(t *testing.T) {
+		const notice = "莫要喧哗"
+		var err = String("age", "2").Customize(notice, func(s string) bool {
+			return true
+		}).Err()
+		assert.Nil(t, err)
+	})
 }

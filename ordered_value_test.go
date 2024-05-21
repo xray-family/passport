@@ -1,6 +1,7 @@
 package passport
 
 import (
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -48,4 +49,43 @@ func TestOrderedValue_Exclude(t *testing.T) {
 	assert.Nil(t, Ordered("age", 2).ExcludeBy(1, 3, 5).Err())
 	assert.Error(t, Ordered("age", 0).Required().ExcludeBy(1, 3, 5).Err())
 	assert.Error(t, Ordered("age", 3).ExcludeBy(1, 3, 5).Err())
+}
+
+func TestOrderedValue_Err(t *testing.T) {
+	t.Run("", func(t *testing.T) {
+		var loc = i18n.NewLocalizer(_bundle, "en-US")
+		var v = Ordered("age", 1).Gt(18)
+		v.setLocalizer(loc)
+		assert.Error(t, v.Err())
+		assert.Error(t, v.Err())
+	})
+
+	t.Run("", func(t *testing.T) {
+		var v = Ordered("age", 1).Gt(18).Message("Gt", "aha")
+		assert.Error(t, v.Err())
+	})
+
+	t.Run("", func(t *testing.T) {
+		var v = Ordered("age", 1).Gt(18)
+		v.config.MessageID = "oh"
+		assert.Error(t, v.Err())
+	})
+}
+
+func TestOrderedValue_Customize(t *testing.T) {
+	t.Run("", func(t *testing.T) {
+		const notice = "未成年人禁止入内"
+		var msg = Ordered("age", 1).Customize(notice, func(i int) bool {
+			return i >= 18
+		}).Err().Error()
+		assert.Equal(t, msg, notice)
+	})
+
+	t.Run("", func(t *testing.T) {
+		const notice = "未成年人禁止入内"
+		var err = Ordered("age", 20).Customize(notice, func(i int) bool {
+			return i >= 18
+		}).Err()
+		assert.Nil(t, err)
+	})
 }

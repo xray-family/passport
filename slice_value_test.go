@@ -11,6 +11,25 @@ func TestSliceValue_Required(t *testing.T) {
 	assert.Nil(t, Slice("name", a1).Required().Err())
 	assert.Error(t, Slice("name", a2).Required().Err())
 	assert.Error(t, Slice("name", a2).Gt(4).Required().Err())
+
+	t.Run("", func(t *testing.T) {
+		var err = NewValidator("zh-CN").Validate(
+			Slice("name", a2).Required(),
+		)
+		assert.Equal(t, err.Error(), "name不能为空")
+	})
+
+	t.Run("", func(t *testing.T) {
+		var value = Slice("name", a2).Required()
+		value.Err()
+		assert.Equal(t, value.Err().Error(), "name is required")
+	})
+
+	t.Run("", func(t *testing.T) {
+		var value = Slice("name", a2).Required()
+		value.config.MessageID = "aha"
+		assert.Error(t, value.Err())
+	})
 }
 
 func TestSliceValue_Eq(t *testing.T) {
@@ -69,4 +88,24 @@ func TestSliceValue_Exclude(t *testing.T) {
 	assert.Error(t, Slice("age", a1).Exclude(1).Err())
 	assert.Error(t, Slice("age", a2).Required().Exclude(1).Err())
 	assert.Nil(t, Slice("age", a1).Exclude(2).Err())
+}
+
+func TestSliceValue_Customize(t *testing.T) {
+	t.Run("", func(t *testing.T) {
+		const notice = "不要大声喧哗"
+		var arr []int
+		var msg = Slice("age", arr).Customize(notice, func(i []int) bool {
+			return len(i) >= 18
+		}).Err().Error()
+		assert.Equal(t, msg, notice)
+	})
+
+	t.Run("", func(t *testing.T) {
+		const notice = "不要大声喧哗"
+		var arr []int
+		var err = Slice("age", arr).Customize(notice, func(i []int) bool {
+			return len(i) >= 0
+		}).Err()
+		assert.Nil(t, err)
+	})
 }
