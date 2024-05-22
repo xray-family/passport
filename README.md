@@ -1,6 +1,6 @@
 ## Passport
 
-[![Go Test](https://github.com/lxzan/passport/actions/workflows/go.yml/badge.svg)](https://github.com/lxzan/passport/actions/workflows/go.yml) [![Coverage Statusd][1]][2]
+[![Go Test](https://github.com/xray-family/passport/actions/workflows/go.yml/badge.svg)](https://github.com/xray-family/passport/actions/workflows/go.yml) [![Coverage Statusd][1]][2]
 
 [1]: https://codecov.io/gh/lxzan/passport/branch/main/graph/badge.svg
 
@@ -9,7 +9,7 @@
 ### Install
 
 ```bash
-go get -v github.com/lxzan/passport@latest
+go get -v github.com/xray-family/passport@latest
 ```
 
 ### Quick Start
@@ -20,7 +20,7 @@ package main
 import (
     "encoding/json"
     "fmt"
-    "github.com/lxzan/passport"
+    "github.com/xray-family/passport"
     "net/http"
 )
 
@@ -61,7 +61,7 @@ package main
 
 import (
     "fmt"
-    "github.com/lxzan/passport"
+    "github.com/xray-family/passport"
     "github.com/nicksnyder/go-i18n/v2/i18n"
     "golang.org/x/text/language"
 )
@@ -90,7 +90,7 @@ package main
 
 import (
     "fmt"
-    "github.com/lxzan/passport"
+    "github.com/xray-family/passport"
     "github.com/nicksnyder/go-i18n/v2/i18n"
     "golang.org/x/text/language"
 )
