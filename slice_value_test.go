@@ -1,7 +1,9 @@
 package passport
 
 import (
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/text/language"
 	"testing"
 )
 
@@ -11,6 +13,25 @@ func TestSliceValue_Required(t *testing.T) {
 	assert.Nil(t, Slice("name", a1).Required().Err())
 	assert.Error(t, Slice("name", a2).Required().Err())
 	assert.Error(t, Slice("name", a2).Gt(4).Required().Err())
+
+	t.Run("", func(t *testing.T) {
+		var err = NewValidator("zh-CN").Validate(
+			Slice("name", a2).Required(),
+		)
+		assert.Equal(t, err.Error(), "name不能为空")
+	})
+
+	t.Run("", func(t *testing.T) {
+		var value = Slice("name", a2).Required()
+		value.Err()
+		assert.Equal(t, value.Err().Error(), "name is required")
+	})
+
+	t.Run("", func(t *testing.T) {
+		var value = Slice("name", a2).Required()
+		value.config.MessageID = "aha"
+		assert.Error(t, value.Err())
+	})
 }
 
 func TestSliceValue_Eq(t *testing.T) {
@@ -58,15 +79,32 @@ func TestSliceValue_Lte(t *testing.T) {
 func TestSliceValue_Include(t *testing.T) {
 	var a1 = []int{1, 3, 5}
 	var a2 []int
-	assert.Error(t, Slice("age", a1).Include(2).Err())
-	assert.Error(t, Slice("age", a2).Required().Include(1).Err())
-	assert.Nil(t, Slice("age", a1).Include(1).Err())
+	assert.Error(t, Slice("age", a1).Contains(2).Err())
+	assert.Error(t, Slice("age", a2).Required().Contains(1).Err())
+	assert.Nil(t, Slice("age", a1).Contains(1).Err())
 }
 
-func TestSliceValue_Exclude(t *testing.T) {
-	var a1 = []int{1, 3, 5}
-	var a2 []int
-	assert.Error(t, Slice("age", a1).Exclude(1).Err())
-	assert.Error(t, Slice("age", a2).Required().Exclude(1).Err())
-	assert.Nil(t, Slice("age", a1).Exclude(2).Err())
+func TestSliceValue_Customize(t *testing.T) {
+	tag := language.Make("en-US")
+	message := &i18n.Message{
+		ID:    "Customize",
+		Other: "未成年人禁止入内",
+	}
+	_ = GetBundle().AddMessages(tag, message)
+
+	t.Run("", func(t *testing.T) {
+		var arr []int
+		var msg = Slice("age", arr).Customize(message.ID, func(i []int) bool {
+			return len(i) >= 18
+		}).Err().Error()
+		assert.Equal(t, msg, message.Other)
+	})
+
+	t.Run("", func(t *testing.T) {
+		var arr []int
+		var err = Slice("age", arr).Customize(message.ID, func(i []int) bool {
+			return len(i) >= 0
+		}).Err()
+		assert.Nil(t, err)
+	})
 }

@@ -3,7 +3,9 @@ package passport
 import (
 	"encoding/base64"
 	"encoding/hex"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/text/language"
 	"regexp"
 	"testing"
 )
@@ -12,6 +14,15 @@ func TestStringValue_Required(t *testing.T) {
 	assert.Error(t, String("name", "").Required().Err())
 	assert.Error(t, String("name", "0").Gt(1).Required().Err())
 	assert.Nil(t, String("name", "aha").Required().Err())
+	assert.Error(t, String("name", " ").Required().Err())
+	assert.Error(t, String("name", "\n").Required().Err())
+
+	t.Run("", func(t *testing.T) {
+		var err = NewValidator("zh-CN").Validate(
+			String("名字", "").Required(),
+		)
+		assert.Equal(t, err.Error(), "名字不能为空")
+	})
 }
 
 func TestStringValue_Gt(t *testing.T) {
@@ -46,15 +57,9 @@ func TestStringValue_Lte(t *testing.T) {
 }
 
 func TestStringValue_Include(t *testing.T) {
-	assert.Error(t, String("age", "2").IncludeBy("1", "3", "5").Err())
-	assert.Error(t, String("age", "").Required().IncludeBy("1", "3", "5").Err())
-	assert.Nil(t, String("age", "3").IncludeBy("1", "3", "5").Err())
-}
-
-func TestStringValue_Exclude(t *testing.T) {
-	assert.Nil(t, String("age", "2").ExcludeBy("1", "3", "5").Err())
-	assert.Error(t, String("age", "").Required().ExcludeBy("1", "3", "5").Err())
-	assert.Error(t, String("age", "3").ExcludeBy("1", "3", "5").Err())
+	assert.Error(t, String("age", "2").In("1", "3", "5").Err())
+	assert.Error(t, String("age", "").Required().In("1", "3", "5").Err())
+	assert.Nil(t, String("age", "3").In("1", "3", "5").Err())
 }
 
 func TestStringValue_Email(t *testing.T) {
@@ -130,10 +135,38 @@ func TestStringValue_MatchString(t *testing.T) {
 		var flateTail = []byte{0x00, 0x00, 0xff, 0xff, 0x01, 0x00, 0x00, 0xff, 0xff}
 		assert.Error(t, String("name", "abc").MatchString(string(flateTail)).Err())
 	})
+
+	t.Run("", func(t *testing.T) {
+		var value = String("name", "").Required()
+		value.Err()
+		assert.Error(t, value.Err())
+	})
 }
 
 func TestStringValue_MatchRegexp(t *testing.T) {
 	assert.Nil(t, String("name", "ABC").MatchRegexp(regexp.MustCompile(`^[A-Z]+$`)).Err())
 	assert.Error(t, String("name", "ABCd").MatchRegexp(regexp.MustCompile(`^[A-Z]+$`)).Err())
 	assert.Error(t, String("name", string([]byte{})).Required().MatchRegexp(regexp.MustCompile(`^[A-Z]+$`)).Err())
+}
+
+func TestStringValue_Customize(t *testing.T) {
+	_ = GetBundle().AddMessages(language.Make("en-US"), &i18n.Message{
+		ID:    "Customize",
+		Other: "莫要喧哗",
+	})
+	t.Run("", func(t *testing.T) {
+		const notice = "莫要喧哗"
+		var msg = String("age", "1").Customize("Customize", func(s string) bool {
+			return false
+		}).Err().Error()
+		assert.Equal(t, msg, notice)
+	})
+
+	t.Run("", func(t *testing.T) {
+		const notice = "莫要喧哗"
+		var err = String("age", "2").Customize("Customize", func(s string) bool {
+			return true
+		}).Err()
+		assert.Nil(t, err)
+	})
 }

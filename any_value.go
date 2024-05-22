@@ -5,28 +5,23 @@ import (
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
-type PointerValue[T any] struct {
+type AnyValue struct {
 	err       error
 	key       string
-	val       *T
+	val       any
 	mark      bool
 	localizer *i18n.Localizer
 	config    *i18n.LocalizeConfig
 }
 
-func Pointer[T any](k string, v *T) *PointerValue[T] {
-	return &PointerValue[T]{
-		key:       k,
-		val:       v,
-		localizer: GetLocalizer(),
+func Any(k string, v any) *AnyValue {
+	return &AnyValue{
+		key: k,
+		val: v,
 	}
 }
 
-func (c *PointerValue[T]) setLocalizer(localizer *i18n.Localizer) {
-	c.localizer = localizer
-}
-
-func (c *PointerValue[T]) validate(messageId string, ok bool, val any) *PointerValue[T] {
+func (c *AnyValue) validate(messageId string, ok bool, val any) *AnyValue {
 	if c.mark || ok {
 		return c
 	}
@@ -38,7 +33,8 @@ func (c *PointerValue[T]) validate(messageId string, ok bool, val any) *PointerV
 	return c
 }
 
-func (c *PointerValue[T]) Err() error {
+// Err get error
+func (c *AnyValue) Err() error {
 	if !c.mark {
 		return nil
 	}
@@ -46,20 +42,23 @@ func (c *PointerValue[T]) Err() error {
 		return c.err
 	}
 
+	if c.localizer == nil {
+		c.localizer = i18n.NewLocalizer(_bundle, _lang...)
+	}
+
 	str, err := c.localizer.Localize(c.config)
 	if err != nil {
 		c.err = err
 		return c.err
 	}
-
 	c.err = errors.New(str)
 	return c.err
 }
 
-func (c *PointerValue[T]) Required() *PointerValue[T] {
-	return c.validate("PointerValue.Required", c.val != nil, nil)
+func (c *AnyValue) setLocalizer(localizer *i18n.Localizer) {
+	c.localizer = localizer
 }
 
-func (c *PointerValue[T]) Customize(messageId string, f func(*T) bool) *PointerValue[T] {
+func (c *AnyValue) Customize(messageId string, f func(any) bool) *AnyValue {
 	return c.validate(messageId, f(c.val), nil)
 }

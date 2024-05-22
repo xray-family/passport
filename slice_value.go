@@ -2,71 +2,96 @@ package passport
 
 import (
 	"cmp"
-	"fmt"
+	"errors"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
-type SlicedValue[T cmp.Ordered] struct {
-	err error
-	key string
-	val []T
+type SliceValue[T cmp.Ordered] struct {
+	err       error
+	key       string
+	val       []T
+	mark      bool
+	localizer *i18n.Localizer
+	config    *i18n.LocalizeConfig
 }
 
-func Slice[T cmp.Ordered](k string, v []T) *SlicedValue[T] {
-	return &SlicedValue[T]{
-		key: k,
-		val: v,
+func Slice[T cmp.Ordered](k string, v []T) *SliceValue[T] {
+	return &SliceValue[T]{
+		key:       k,
+		val:       v,
+		localizer: GetLocalizer(),
 	}
 }
 
-func (c *SlicedValue[T]) validate(ok bool, layout string, args ...any) *SlicedValue[T] {
-	if c.err != nil || ok {
+func (c *SliceValue[T]) setLocalizer(localizer *i18n.Localizer) {
+	c.localizer = localizer
+}
+
+func (c *SliceValue[T]) validate(messageId string, ok bool, val any) *SliceValue[T] {
+	if c.mark || ok {
 		return c
 	}
-	c.err = fmt.Errorf(layout, args...)
+	c.mark = true
+	c.config = &i18n.LocalizeConfig{
+		MessageID:    messageId,
+		TemplateData: map[string]any{"Key": c.key, "Value": val},
+	}
 	return c
 }
 
 // Err get error
-func (c *SlicedValue[T]) Err() error {
+func (c *SliceValue[T]) Err() error {
+	if !c.mark {
+		return nil
+	}
+	if c.err != nil {
+		return c.err
+	}
+
+	str, err := c.localizer.Localize(c.config)
+	if err != nil {
+		c.err = err
+		return c.err
+	}
+	c.err = errors.New(str)
 	return c.err
 }
 
 // Required the slice cannot be empty
-func (c *SlicedValue[T]) Required() *SlicedValue[T] {
-	return c.validate(len(c.val) > 0, "%s is required", c.key)
+func (c *SliceValue[T]) Required() *SliceValue[T] {
+	return c.validate("SliceValue.Required", len(c.val) > 0, nil)
 }
 
 // Eq check the slice length is equal to v
-func (c *SlicedValue[T]) Eq(v int) *SlicedValue[T] {
-	return c.validate(len(c.val) == v, "size of %s should equal %v", c.key, v)
+func (c *SliceValue[T]) Eq(v int) *SliceValue[T] {
+	return c.validate("SliceValue.Eq", len(c.val) == v, v)
 }
 
 // Gt check the slice length is greater than v
-func (c *SlicedValue[T]) Gt(v int) *SlicedValue[T] {
-	return c.validate(len(c.val) > v, "size of %s should great than %v", c.key, v)
+func (c *SliceValue[T]) Gt(v int) *SliceValue[T] {
+	return c.validate("SliceValue.Gt", len(c.val) > v, v)
 }
 
 // Gte check the slice length is greater or equal than v
-func (c *SlicedValue[T]) Gte(v int) *SlicedValue[T] {
-	return c.validate(len(c.val) >= v, "size of %s should great or equal than %v", c.key, v)
+func (c *SliceValue[T]) Gte(v int) *SliceValue[T] {
+	return c.validate("SliceValue.Gte", len(c.val) >= v, v)
 }
 
 // Lt check the slice length is less than v
-func (c *SlicedValue[T]) Lt(v int) *SlicedValue[T] {
-	return c.validate(len(c.val) < v, "size of %s should less than %v", c.key, v)
+func (c *SliceValue[T]) Lt(v int) *SliceValue[T] {
+	return c.validate("SliceValue.Lt", len(c.val) < v, v)
 }
 
 // Lte check the slice length is less or equal than v
-func (c *SlicedValue[T]) Lte(v int) *SlicedValue[T] {
-	return c.validate(len(c.val) <= v, "size of %s should less or equal than %v", c.key, v)
+func (c *SliceValue[T]) Lte(v int) *SliceValue[T] {
+	return c.validate("SliceValue.Lte", len(c.val) <= v, v)
 }
 
-// Include checks whether the slice contains v
-func (c *SlicedValue[T]) Include(v T) *SlicedValue[T] {
-	return c.validate(contains(c.val, v), "%s should contains %v", c.key, v)
+// Contains checks whether the slice contains v
+func (c *SliceValue[T]) Contains(v T) *SliceValue[T] {
+	return c.validate("SliceValue.Contains", contains(c.val, v), v)
 }
 
-// Exclude check if the slice does not contain v
-func (c *SlicedValue[T]) Exclude(v T) *SlicedValue[T] {
-	return c.validate(!contains(c.val, v), "%s should not contains %v", c.key, v)
+func (c *SliceValue[T]) Customize(messageId string, f func([]T) bool) *SliceValue[T] {
+	return c.validate(messageId, f(c.val), nil)
 }
