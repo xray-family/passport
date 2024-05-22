@@ -1,4 +1,4 @@
-module github.com/lxzan/passport
+module github.com/xray-family/passport
 
 go 1.21
 
