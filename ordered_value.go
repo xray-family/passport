@@ -7,19 +7,19 @@ import (
 )
 
 type OrderedValue[T cmp.Ordered] struct {
-	err       error
-	key       string
-	val       T
-	mark      bool
-	localizer *i18n.Localizer
-	config    *i18n.LocalizeConfig
+	err     error
+	key     string
+	val     T
+	mark    bool
+	conf    *config
+	locConf *i18n.LocalizeConfig
 }
 
 func Ordered[T cmp.Ordered](k string, v T) *OrderedValue[T] {
 	return &OrderedValue[T]{
-		key:       k,
-		val:       v,
-		localizer: GetLocalizer(),
+		key:  k,
+		val:  v,
+		conf: _conf,
 	}
 }
 
@@ -28,7 +28,7 @@ func (c *OrderedValue[T]) validate(messageId string, ok bool, val any) *OrderedV
 		return c
 	}
 	c.mark = true
-	c.config = &i18n.LocalizeConfig{
+	c.locConf = &i18n.LocalizeConfig{
 		MessageID:    messageId,
 		TemplateData: map[string]any{"Key": c.key, "Value": val},
 	}
@@ -43,7 +43,13 @@ func (c *OrderedValue[T]) Err() error {
 	if c.err != nil {
 		return c.err
 	}
-	str, err := c.localizer.Localize(c.config)
+	if c.conf.AutoTranslate {
+		if str, err := c.conf.loc.Localize(&i18n.LocalizeConfig{MessageID: c.key}); err == nil {
+			td := c.locConf.TemplateData.(map[string]any)
+			td["Key"] = str
+		}
+	}
+	str, err := c.conf.loc.Localize(c.locConf)
 	if err != nil {
 		c.err = err
 		return c.err
@@ -52,8 +58,8 @@ func (c *OrderedValue[T]) Err() error {
 	return c.err
 }
 
-func (c *OrderedValue[T]) setLocalizer(localizer *i18n.Localizer) {
-	c.localizer = localizer
+func (c *OrderedValue[T]) setConf(conf *config) {
+	c.conf = conf
 }
 
 // Required the ordered value cannot be empty

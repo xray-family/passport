@@ -1,6 +1,7 @@
 package passport
 
 import (
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -50,7 +51,7 @@ func TestAnyValue_Customize(t *testing.T) {
 			Customize("", func(a any) bool {
 				return false
 			})
-		value.setLocalizer(nil)
+		//value.setConf(nil)
 		assert.Error(t, value.Err())
 	})
 
@@ -68,5 +69,18 @@ func TestAnyValue_Customize(t *testing.T) {
 				return false
 			})
 		assert.Error(t, value.Err())
+	})
+
+	t.Run("", func(t *testing.T) {
+		_ = GetBundle().AddMessages(Chinese, &i18n.Message{
+			ID:    "Name",
+			Other: "名字",
+		})
+		err := NewValidator(WithAutoTranslate(), WithLang(Chinese.String())).Validate(
+			Any("Name", "").Customize("StringValue.Required", func(a any) bool {
+				return false
+			}),
+		)
+		assert.Equal(t, err.Error(), "名字不能为空")
 	})
 }

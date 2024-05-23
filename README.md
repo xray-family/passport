@@ -90,22 +90,21 @@ package main
 
 import (
     "fmt"
-    "github.com/xray-family/passport"
     "github.com/nicksnyder/go-i18n/v2/i18n"
-    "golang.org/x/text/language"
+    "github.com/xray-family/passport"
 )
 
 func main() {
-    tag := language.Make("zh-CN")
-    _ = passport.GetBundle().AddMessages(tag, &i18n.Message{
+    _ = passport.GetBundle().AddMessages(passport.Chinese, &i18n.Message{
         ID:    "Req.Name",
         Other: "用户名",
     })
-    var validator = passport.NewValidator("zh-CN")
+    var validator = passport.NewValidator(
+        passport.WithLang(passport.Chinese.String()),
+        passport.WithAutoTranslate(),
+    )
     var err = validator.Validate(
-        passport.
-            String(validator.Localize("Req.Name"), "").
-            Required(),
+        passport.String("Req.Name", "").Required(),
     )
     fmt.Printf("%v\n", err)
 }

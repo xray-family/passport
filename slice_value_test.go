@@ -15,7 +15,7 @@ func TestSliceValue_Required(t *testing.T) {
 	assert.Error(t, Slice("name", a2).Gt(4).Required().Err())
 
 	t.Run("", func(t *testing.T) {
-		var err = NewValidator("zh-CN").Validate(
+		var err = NewValidator(WithLang("zh-CN")).Validate(
 			Slice("name", a2).Required(),
 		)
 		assert.Equal(t, err.Error(), "name不能为空")
@@ -29,8 +29,19 @@ func TestSliceValue_Required(t *testing.T) {
 
 	t.Run("", func(t *testing.T) {
 		var value = Slice("name", a2).Required()
-		value.config.MessageID = "aha"
+		value.locConf.MessageID = "aha"
 		assert.Error(t, value.Err())
+	})
+
+	t.Run("", func(t *testing.T) {
+		_ = GetBundle().AddMessages(Chinese, &i18n.Message{
+			ID:    "Name",
+			Other: "名字",
+		})
+		err := NewValidator(WithAutoTranslate(), WithLang(Chinese.String())).Validate(
+			Slice("Name", a2).Required(),
+		)
+		assert.Equal(t, err.Error(), "名字不能为空")
 	})
 }
 

@@ -18,8 +18,19 @@ func TestStringValue_Required(t *testing.T) {
 	assert.Error(t, String("name", "\n").Required().Err())
 
 	t.Run("", func(t *testing.T) {
-		var err = NewValidator("zh-CN").Validate(
+		var err = NewValidator(WithLang("zh-CN")).Validate(
 			String("名字", "").Required(),
+		)
+		assert.Equal(t, err.Error(), "名字不能为空")
+	})
+
+	t.Run("", func(t *testing.T) {
+		_ = GetBundle().AddMessages(Chinese, &i18n.Message{
+			ID:    "Name",
+			Other: "名字",
+		})
+		err := NewValidator(WithAutoTranslate(), WithLang(Chinese.String())).Validate(
+			String("Name", "").Required(),
 		)
 		assert.Equal(t, err.Error(), "名字不能为空")
 	})
