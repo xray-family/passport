@@ -43,16 +43,10 @@ func TestValidate(t *testing.T) {
 
 	t.Run("", func(t *testing.T) {
 		r := Req{Name: "aha", Age: 15}
-		err := NewValidator("zh-CN").Validate(
+		err := NewValidator(WithLang("zh-CN")).Validate(
 			Ordered("Name", r.Name).Required(),
 			Ordered("Age", r.Age).Gte(18),
 		)
 		assert.Equal(t, err.Error(), "Age必须大于等于18")
 	})
-}
-
-func TestValidator_Localize(t *testing.T) {
-	GetBundle().LoadMessageFile("./asset/test.zh-CN.toml")
-	var s = NewValidator("zh-CN").Localize("Request.Name")
-	assert.Equal(t, s, "名字")
 }

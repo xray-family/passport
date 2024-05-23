@@ -16,7 +16,7 @@ func TestPointerValue_Required(t *testing.T) {
 	assert.Nil(t, Pointer("req", new(http.Request)).Required().Err())
 
 	t.Run("", func(t *testing.T) {
-		var err = NewValidator("zh-CN").Validate(
+		var err = NewValidator(WithLang("zh-CN")).Validate(
 			Pointer[*http.Request]("名字", nil).Required(),
 		)
 		assert.Equal(t, err.Error(), "名字不能为空")
@@ -24,8 +24,20 @@ func TestPointerValue_Required(t *testing.T) {
 
 	t.Run("", func(t *testing.T) {
 		var value = Pointer[*http.Request]("name", nil).Required()
-		value.config.MessageID = "aha"
+		value.locConf.MessageID = "aha"
 		assert.Error(t, value.Err())
+	})
+
+	t.Run("", func(t *testing.T) {
+		_ = GetBundle().AddMessages(Chinese, &i18n.Message{
+			ID:    "Name",
+			Other: "名字",
+		})
+		var r *http.Request
+		err := NewValidator(WithAutoTranslate(), WithLang(Chinese.String())).Validate(
+			Pointer("Name", r).Required(),
+		)
+		assert.Equal(t, err.Error(), "名字不能为空")
 	})
 }
 

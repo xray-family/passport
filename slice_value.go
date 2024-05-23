@@ -7,24 +7,24 @@ import (
 )
 
 type SliceValue[T cmp.Ordered] struct {
-	err       error
-	key       string
-	val       []T
-	mark      bool
-	localizer *i18n.Localizer
-	config    *i18n.LocalizeConfig
+	err     error
+	key     string
+	val     []T
+	mark    bool
+	conf    *config
+	locConf *i18n.LocalizeConfig
 }
 
 func Slice[T cmp.Ordered](k string, v []T) *SliceValue[T] {
 	return &SliceValue[T]{
-		key:       k,
-		val:       v,
-		localizer: GetLocalizer(),
+		key:  k,
+		val:  v,
+		conf: _conf,
 	}
 }
 
-func (c *SliceValue[T]) setLocalizer(localizer *i18n.Localizer) {
-	c.localizer = localizer
+func (c *SliceValue[T]) setConf(conf *config) {
+	c.conf = conf
 }
 
 func (c *SliceValue[T]) validate(messageId string, ok bool, val any) *SliceValue[T] {
@@ -32,7 +32,7 @@ func (c *SliceValue[T]) validate(messageId string, ok bool, val any) *SliceValue
 		return c
 	}
 	c.mark = true
-	c.config = &i18n.LocalizeConfig{
+	c.locConf = &i18n.LocalizeConfig{
 		MessageID:    messageId,
 		TemplateData: map[string]any{"Key": c.key, "Value": val},
 	}
@@ -47,8 +47,13 @@ func (c *SliceValue[T]) Err() error {
 	if c.err != nil {
 		return c.err
 	}
-
-	str, err := c.localizer.Localize(c.config)
+	if c.conf.AutoTranslate {
+		if str, err := c.conf.loc.Localize(&i18n.LocalizeConfig{MessageID: c.key}); err == nil {
+			td := c.locConf.TemplateData.(map[string]any)
+			td["Key"] = str
+		}
+	}
+	str, err := c.conf.loc.Localize(c.locConf)
 	if err != nil {
 		c.err = err
 		return c.err

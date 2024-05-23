@@ -12,6 +12,17 @@ func TestOrderedValue_Required(t *testing.T) {
 	assert.Error(t, Ordered("name", 0).Required().Err())
 	assert.Error(t, Ordered("name", 0).Gt(1).Required().Err())
 	assert.Nil(t, Ordered("name", "aha").Required().Err())
+
+	t.Run("", func(t *testing.T) {
+		_ = GetBundle().AddMessages(Chinese, &i18n.Message{
+			ID:    "Name",
+			Other: "名字",
+		})
+		err := NewValidator(WithAutoTranslate(), WithLang(Chinese.String())).Validate(
+			Ordered("Name", "").Required(),
+		)
+		assert.Equal(t, err.Error(), "名字不能为空")
+	})
 }
 
 func TestOrderedValue_Gt(t *testing.T) {
@@ -48,16 +59,16 @@ func TestOrderedValue_Include(t *testing.T) {
 
 func TestOrderedValue_Err(t *testing.T) {
 	t.Run("", func(t *testing.T) {
-		var loc = i18n.NewLocalizer(_bundle, "en-US")
+		var validator = NewValidator(WithLang("en-US"))
 		var v = Ordered("age", 1).Gt(18)
-		v.setLocalizer(loc)
+		v.setConf(validator.conf)
 		assert.Error(t, v.Err())
 		assert.Error(t, v.Err())
 	})
 
 	t.Run("", func(t *testing.T) {
 		var v = Ordered("age", 1).Gt(18)
-		v.config.MessageID = "oh"
+		v.locConf.MessageID = "oh"
 		assert.Error(t, v.Err())
 	})
 }

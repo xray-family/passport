@@ -1,40 +1,31 @@
 package passport
 
-import (
-	"github.com/nicksnyder/go-i18n/v2/i18n"
-)
-
 type Value interface {
-	setLocalizer(localizer *i18n.Localizer)
+	setConf(conf *config)
 	Err() error
 }
 
 type Validator struct {
-	localizer *i18n.Localizer
+	conf *config
 }
 
-func NewValidator(langs ...string) *Validator {
-	var localizer = GetLocalizer()
-	if len(langs) > 0 {
-		localizer = i18n.NewLocalizer(_bundle, langs...)
+func NewValidator(options ...Option) *Validator {
+	options = append(options, withInit())
+	var conf = new(config)
+	for _, f := range options {
+		f(conf)
 	}
-	return &Validator{localizer: localizer}
+	return &Validator{conf: conf}
 }
 
 func (c *Validator) Validate(values ...Value) error {
 	for _, item := range values {
-		item.setLocalizer(c.localizer)
+		item.setConf(c.conf)
 		if err := item.Err(); err != nil {
 			return err
 		}
 	}
 	return nil
-}
-
-// Localize translation into the given language
-func (c *Validator) Localize(messageId string) string {
-	s, _ := c.localizer.Localize(&i18n.LocalizeConfig{MessageID: messageId})
-	return s
 }
 
 func Validate(values ...Value) error {
