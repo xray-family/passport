@@ -1,12 +1,19 @@
 package passport
 
 import (
+	"embed"
 	"github.com/BurntSushi/toml"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"golang.org/x/text/language"
 )
 
 var (
+	//go:embed asset/active.en-US.toml
+	enFS embed.FS
+
+	//go:embed asset/active.zh-CN.toml
+	cnFS embed.FS
+
 	_bundle    *i18n.Bundle
 	_localizer *i18n.Localizer
 	_conf      *config
@@ -22,8 +29,8 @@ func init() {
 func SetLang(tag language.Tag, langs ...string) {
 	_bundle = i18n.NewBundle(tag)
 	_bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
-	_bundle.MustLoadMessageFile(`active.en-US.toml`)
-	_bundle.MustLoadMessageFile(`active.zh-CN.toml`)
+	_, _ = _bundle.LoadMessageFileFS(enFS, `asset/active.en-US.toml`)
+	_, _ = _bundle.LoadMessageFileFS(cnFS, `asset/active.zh-CN.toml`)
 	_localizer = i18n.NewLocalizer(_bundle, langs...)
 	_conf = new(config)
 	withInit()(_conf)
