@@ -17,9 +17,6 @@ var (
 
 func init() {
 	SetLang(English, English.String())
-
-	_conf = new(config)
-	withInit()(_conf)
 }
 
 func SetLang(tag language.Tag, langs ...string) {
@@ -28,6 +25,8 @@ func SetLang(tag language.Tag, langs ...string) {
 	_bundle.MustLoadMessageFile(`active.en-US.toml`)
 	_bundle.MustLoadMessageFile(`active.zh-CN.toml`)
 	_localizer = i18n.NewLocalizer(_bundle, langs...)
+	_conf = new(config)
+	withInit()(_conf)
 }
 
 func GetBundle() *i18n.Bundle {
