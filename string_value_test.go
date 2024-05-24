@@ -83,11 +83,13 @@ func TestStringValue_IPv4(t *testing.T) {
 	assert.Nil(t, String("ip", "192.168.1.1").IPv4().Err())
 	assert.Error(t, String("ip", "256.168.1.1").IPv4().Err())
 	assert.Error(t, String("ip", "192.168.1").IPv4().Err())
+	assert.Error(t, String("ip", "2001:0:2851:b9f0:2488:f0ba:210f:f3c8").IPv4().Err())
 }
 
 func TestStringValue_IPv6(t *testing.T) {
 	assert.Nil(t, String("ip", "2001:0:2851:b9f0:2488:f0ba:210f:f3c8").IPv6().Err())
 	assert.Error(t, String("ip", "2001:0:2851:b9f0:2488:f0ba:210f/f3c8").IPv6().Err())
+	assert.Error(t, String("ip", "192.168.1.1").IPv6().Err())
 }
 
 func TestStringValue_URL(t *testing.T) {
@@ -149,7 +151,6 @@ func TestStringValue_MatchString(t *testing.T) {
 
 	t.Run("", func(t *testing.T) {
 		var value = String("name", "").Required()
-		value.Err()
 		assert.Error(t, value.Err())
 	})
 }
