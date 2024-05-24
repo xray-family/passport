@@ -94,3 +94,9 @@ func TestOrderedValue_Customize(t *testing.T) {
 		assert.Nil(t, err)
 	})
 }
+
+func TestOrderedValue_Between(t *testing.T) {
+	assert.Nil(t, Ordered("age", 3).Between(3, 5).Err())
+	assert.Nil(t, Ordered("age", 4).Between(3, 5).Err())
+	assert.Error(t, Ordered("age", 5).Between(3, 5).Err())
+}

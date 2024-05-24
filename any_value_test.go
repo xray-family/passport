@@ -9,7 +9,7 @@ import (
 func TestAnyValue_Customize(t *testing.T) {
 	t.Run("", func(t *testing.T) {
 		var err = Any("name", 1).
-			Customize("", func(a any) bool {
+			Customize("", func(a int) bool {
 				return true
 			}).
 			Err()
@@ -18,7 +18,7 @@ func TestAnyValue_Customize(t *testing.T) {
 
 	t.Run("", func(t *testing.T) {
 		var err = Any("name", 1).
-			Customize("", func(a any) bool {
+			Customize("", func(a int) bool {
 				return false
 			}).
 			Err()
@@ -27,10 +27,10 @@ func TestAnyValue_Customize(t *testing.T) {
 
 	t.Run("", func(t *testing.T) {
 		var err = Any("name", 1).
-			Customize("", func(a any) bool {
+			Customize("", func(a int) bool {
 				return false
 			}).
-			Customize("", func(a any) bool {
+			Customize("", func(a int) bool {
 				return true
 			}).
 			Err()
@@ -39,7 +39,7 @@ func TestAnyValue_Customize(t *testing.T) {
 
 	t.Run("", func(t *testing.T) {
 		var value = Any("name", 1).
-			Customize("", func(a any) bool {
+			Customize("", func(a int) bool {
 				return false
 			})
 		value.Err()
@@ -48,7 +48,7 @@ func TestAnyValue_Customize(t *testing.T) {
 
 	t.Run("", func(t *testing.T) {
 		var value = Any("name", 1).
-			Customize("", func(a any) bool {
+			Customize("", func(a int) bool {
 				return false
 			})
 		//value.setConf(nil)
@@ -57,7 +57,7 @@ func TestAnyValue_Customize(t *testing.T) {
 
 	t.Run("", func(t *testing.T) {
 		var value = Any("name", 1).
-			Customize("", func(a any) bool {
+			Customize("", func(a int) bool {
 				return false
 			})
 		assert.Error(t, value.Err())
@@ -65,7 +65,7 @@ func TestAnyValue_Customize(t *testing.T) {
 
 	t.Run("", func(t *testing.T) {
 		var value = Any("name", 1).
-			Customize("StringValue.Required", func(a any) bool {
+			Customize("StringValue.Required", func(a int) bool {
 				return false
 			})
 		assert.Error(t, value.Err())
@@ -77,7 +77,7 @@ func TestAnyValue_Customize(t *testing.T) {
 			Other: "名字",
 		})
 		err := NewValidator(WithAutoTranslate(), WithLang(Chinese.String())).Validate(
-			Any("Name", "").Customize("StringValue.Required", func(a any) bool {
+			Any("Name", "").Customize("StringValue.Required", func(a string) bool {
 				return false
 			}),
 		)

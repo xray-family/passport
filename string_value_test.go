@@ -181,3 +181,9 @@ func TestStringValue_Customize(t *testing.T) {
 		assert.Nil(t, err)
 	})
 }
+
+func TestStringValue_Between(t *testing.T) {
+	assert.Nil(t, String("age", "3").Between("3", "5").Err())
+	assert.Nil(t, String("age", "4").Between("3", "5").Err())
+	assert.Error(t, String("age", "5").Between("3", "5").Err())
+}

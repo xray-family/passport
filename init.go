@@ -7,7 +7,6 @@ import (
 )
 
 var (
-	_lang      []string
 	_bundle    *i18n.Bundle
 	_localizer *i18n.Localizer
 	_conf      *config
@@ -18,18 +17,16 @@ var (
 
 func init() {
 	SetLang(English, English.String())
-
-	_conf = new(config)
-	withInit()(_conf)
 }
 
 func SetLang(tag language.Tag, langs ...string) {
-	_lang = langs
 	_bundle = i18n.NewBundle(tag)
 	_bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
 	_bundle.MustLoadMessageFile(`active.en-US.toml`)
 	_bundle.MustLoadMessageFile(`active.zh-CN.toml`)
 	_localizer = i18n.NewLocalizer(_bundle, langs...)
+	_conf = new(config)
+	withInit()(_conf)
 }
 
 func GetBundle() *i18n.Bundle {

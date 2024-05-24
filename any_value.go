@@ -3,39 +3,45 @@ package passport
 import (
 	"errors"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
+	"strconv"
 )
 
-type AnyValue struct {
+type AnyValue[T any] struct {
 	err     error
 	key     string
-	val     any
+	val     T
 	mark    bool
 	conf    *config
 	locConf *i18n.LocalizeConfig
 }
 
-func Any(k string, v any) *AnyValue {
-	return &AnyValue{
+func Any[T any](k string, v T) *AnyValue[T] {
+	return &AnyValue[T]{
 		key:  k,
 		val:  v,
 		conf: _conf,
 	}
 }
 
-func (c *AnyValue) validate(messageId string, ok bool, val any) *AnyValue {
+func (c *AnyValue[T]) validate(messageId string, ok bool, args ...any) *AnyValue[T] {
 	if c.mark || ok {
 		return c
 	}
 	c.mark = true
+	td := map[string]any{"Key": c.key}
+	for i, v := range args {
+		key := "Arg" + strconv.Itoa(i)
+		td[key] = v
+	}
 	c.locConf = &i18n.LocalizeConfig{
 		MessageID:    messageId,
-		TemplateData: map[string]any{"Key": c.key, "Value": val},
+		TemplateData: td,
 	}
 	return c
 }
 
 // Err get error
-func (c *AnyValue) Err() error {
+func (c *AnyValue[T]) Err() error {
 	if !c.mark {
 		return nil
 	}
@@ -58,10 +64,10 @@ func (c *AnyValue) Err() error {
 	return c.err
 }
 
-func (c *AnyValue) setConf(conf *config) {
+func (c *AnyValue[T]) setConf(conf *config) {
 	c.conf = conf
 }
 
-func (c *AnyValue) Customize(messageId string, f func(any) bool) *AnyValue {
+func (c *AnyValue[T]) Customize(messageId string, f func(T) bool) *AnyValue[T] {
 	return c.validate(messageId, f(c.val), nil)
 }
