@@ -6,6 +6,7 @@ import (
 	"errors"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -36,14 +37,19 @@ func (c *StringValue[T]) setConf(conf *config) {
 	c.conf = conf
 }
 
-func (c *StringValue[T]) validate(messageId string, ok bool, val any) *StringValue[T] {
+func (c *StringValue[T]) validate(messageId string, ok bool, args ...any) *StringValue[T] {
 	if c.mark || ok {
 		return c
 	}
 	c.mark = true
+	td := map[string]any{"Key": c.key}
+	for i, v := range args {
+		key := "Arg" + strconv.Itoa(i)
+		td[key] = v
+	}
 	c.locConf = &i18n.LocalizeConfig{
 		MessageID:    messageId,
-		TemplateData: map[string]any{"Key": c.key, "Value": val},
+		TemplateData: td,
 	}
 	return c
 }
@@ -104,6 +110,11 @@ func (c *StringValue[T]) Lte(v int) *StringValue[T] {
 // In check if args contains the string.
 func (c *StringValue[T]) In(args ...T) *StringValue[T] {
 	return c.validate("StringValue.In", contains(args, c.val), args)
+}
+
+// Between check that the range of values of the ordered value satisfies a <= x <b
+func (c *StringValue[T]) Between(a, b T) *StringValue[T] {
+	return c.validate("StringValue.Between", c.val >= a && c.val < b, a, b)
 }
 
 // MatchString verify that the string matches the regular expression re

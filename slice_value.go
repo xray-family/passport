@@ -4,6 +4,7 @@ import (
 	"cmp"
 	"errors"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
+	"strconv"
 )
 
 type SliceValue[T cmp.Ordered] struct {
@@ -27,14 +28,19 @@ func (c *SliceValue[T]) setConf(conf *config) {
 	c.conf = conf
 }
 
-func (c *SliceValue[T]) validate(messageId string, ok bool, val any) *SliceValue[T] {
+func (c *SliceValue[T]) validate(messageId string, ok bool, args ...any) *SliceValue[T] {
 	if c.mark || ok {
 		return c
 	}
 	c.mark = true
+	td := map[string]any{"Key": c.key}
+	for i, v := range args {
+		key := "Arg" + strconv.Itoa(i)
+		td[key] = v
+	}
 	c.locConf = &i18n.LocalizeConfig{
 		MessageID:    messageId,
-		TemplateData: map[string]any{"Key": c.key, "Value": val},
+		TemplateData: td,
 	}
 	return c
 }

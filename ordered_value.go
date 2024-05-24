@@ -4,6 +4,7 @@ import (
 	"cmp"
 	"errors"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
+	"strconv"
 )
 
 type OrderedValue[T cmp.Ordered] struct {
@@ -23,14 +24,19 @@ func Ordered[T cmp.Ordered](k string, v T) *OrderedValue[T] {
 	}
 }
 
-func (c *OrderedValue[T]) validate(messageId string, ok bool, val any) *OrderedValue[T] {
+func (c *OrderedValue[T]) validate(messageId string, ok bool, args ...any) *OrderedValue[T] {
 	if c.mark || ok {
 		return c
 	}
 	c.mark = true
+	td := map[string]any{"Key": c.key}
+	for i, v := range args {
+		key := "Arg" + strconv.Itoa(i)
+		td[key] = v
+	}
 	c.locConf = &i18n.LocalizeConfig{
 		MessageID:    messageId,
-		TemplateData: map[string]any{"Key": c.key, "Value": val},
+		TemplateData: td,
 	}
 	return c
 }
@@ -85,6 +91,11 @@ func (c *OrderedValue[T]) Lt(v T) *OrderedValue[T] {
 // Lte check the ordered value is less or equal than v
 func (c *OrderedValue[T]) Lte(v T) *OrderedValue[T] {
 	return c.validate("OrderedValue.Lte", c.val <= v, v)
+}
+
+// Between check that the range of values of the ordered value satisfies a <= x <b
+func (c *OrderedValue[T]) Between(a, b T) *OrderedValue[T] {
+	return c.validate("OrderedValue.Between", c.val >= a && c.val < b, a, b)
 }
 
 // In check if args contains the ordered value.

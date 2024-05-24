@@ -5,7 +5,6 @@ import "github.com/nicksnyder/go-i18n/v2/i18n"
 type config struct {
 	loc           *i18n.Localizer
 	AutoTranslate bool
-	Langs         []string
 }
 
 type Option func(c *config)
@@ -13,7 +12,6 @@ type Option func(c *config)
 // WithLang set languages
 func WithLang(langs ...string) Option {
 	return func(c *config) {
-		c.Langs = langs
 		if len(langs) > 0 {
 			c.loc = i18n.NewLocalizer(_bundle, langs...)
 		}

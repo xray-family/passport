@@ -3,6 +3,7 @@ package passport
 import (
 	"errors"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
+	"strconv"
 )
 
 type AnyValue struct {
@@ -22,14 +23,19 @@ func Any(k string, v any) *AnyValue {
 	}
 }
 
-func (c *AnyValue) validate(messageId string, ok bool, val any) *AnyValue {
+func (c *AnyValue) validate(messageId string, ok bool, args ...any) *AnyValue {
 	if c.mark || ok {
 		return c
 	}
 	c.mark = true
+	td := map[string]any{"Key": c.key}
+	for i, v := range args {
+		key := "Arg" + strconv.Itoa(i)
+		td[key] = v
+	}
 	c.locConf = &i18n.LocalizeConfig{
 		MessageID:    messageId,
-		TemplateData: map[string]any{"Key": c.key, "Value": val},
+		TemplateData: td,
 	}
 	return c
 }

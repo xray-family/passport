@@ -61,9 +61,8 @@ package main
 
 import (
     "fmt"
-    "github.com/xray-family/passport"
     "github.com/nicksnyder/go-i18n/v2/i18n"
-    "golang.org/x/text/language"
+    "github.com/xray-family/passport"
 )
 
 func isPhone(s string) bool {
@@ -71,7 +70,7 @@ func isPhone(s string) bool {
 }
 
 func main() {
-    _ = passport.GetBundle().AddMessages(language.Make("en-US"), &i18n.Message{
+    _ = passport.GetBundle().AddMessages(passport.English, &i18n.Message{
         ID:    "Phone",
         Other: "Failed to verify cell phone number",
     })
