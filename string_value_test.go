@@ -152,6 +152,7 @@ func TestStringValue_MatchString(t *testing.T) {
 	t.Run("", func(t *testing.T) {
 		var value = String("name", "").Required()
 		assert.Error(t, value.Err())
+		assert.Error(t, value.Err())
 	})
 }
 
