@@ -42,7 +42,7 @@ func Handle(writer http.ResponseWriter, request *http.Request) {
     var r = &Req{}
     _ = json.NewDecoder(request.Body).Decode(r)
     _ = request.Body.Close()
-    var err = r.Validate(request.Header)
+    var err = r.Validate()
     fmt.Printf("%v\n", err)
 }
 
