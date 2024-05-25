@@ -47,6 +47,6 @@ func TestValidate(t *testing.T) {
 			Ordered("Name", r.Name).Required(),
 			Ordered("Age", r.Age).Gte(18),
 		)
-		assert.Equal(t, err.Error(), "Age必须大于等于18")
+		assert.Equal(t, err.Error(), "Age须大于等于18")
 	})
 }

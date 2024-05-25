@@ -29,7 +29,7 @@ func TestStringValue_Required(t *testing.T) {
 			ID:    "Name",
 			Other: "名字",
 		})
-		err := NewValidator(WithAutoTranslate(), WithLang(Chinese.String())).Validate(
+		err := NewValidator(WithAutoTranslate(true), WithLang(Chinese.String())).Validate(
 			String("Name", "").Required(),
 		)
 		assert.Equal(t, err.Error(), "名字不能为空")

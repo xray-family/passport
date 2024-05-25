@@ -24,7 +24,7 @@ func TestSliceValue_Required(t *testing.T) {
 	t.Run("", func(t *testing.T) {
 		var value = Slice("name", a2).Required()
 		value.Err()
-		assert.Equal(t, value.Err().Error(), "name is required")
+		assert.Equal(t, value.Err().Error(), "name cannot be empty")
 	})
 
 	t.Run("", func(t *testing.T) {
@@ -38,7 +38,7 @@ func TestSliceValue_Required(t *testing.T) {
 			ID:    "Name",
 			Other: "名字",
 		})
-		err := NewValidator(WithAutoTranslate(), WithLang(Chinese.String())).Validate(
+		err := NewValidator(WithAutoTranslate(true), WithLang(Chinese.String())).Validate(
 			Slice("Name", a2).Required(),
 		)
 		assert.Equal(t, err.Error(), "名字不能为空")
