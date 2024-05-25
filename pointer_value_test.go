@@ -34,7 +34,7 @@ func TestPointerValue_Required(t *testing.T) {
 			Other: "名字",
 		})
 		var r *http.Request
-		err := NewValidator(WithAutoTranslate(), WithLang(Chinese.String())).Validate(
+		err := NewValidator(WithAutoTranslate(true), WithLang(Chinese.String())).Validate(
 			Pointer("Name", r).Required(),
 		)
 		assert.Equal(t, err.Error(), "名字不能为空")

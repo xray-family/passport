@@ -76,7 +76,7 @@ func TestAnyValue_Customize(t *testing.T) {
 			ID:    "Name",
 			Other: "名字",
 		})
-		err := NewValidator(WithAutoTranslate(), WithLang(Chinese.String())).Validate(
+		err := NewValidator(WithAutoTranslate(true), WithLang(Chinese.String())).Validate(
 			Any("Name", "").Customize("StringValue.Required", func(a string) bool {
 				return false
 			}),

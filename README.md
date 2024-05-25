@@ -30,8 +30,9 @@ type Req struct {
     Roles []int  `json:"roles"`
 }
 
-func (c *Req) Validate() error {
-    return passport.Validate(
+func (c *Req) Validate(h http.Header) error {
+    opt := passport.WithLang(h.Get("Accept-Language"))
+    return passport.NewValidator(opt).Validate(
         passport.String("Name", c.Name).Required().Alphabet(),
         passport.Ordered("Age", c.Age).Gte(18),
         passport.Slice("Roles", c.Roles).Required(),
@@ -42,7 +43,7 @@ func Handle(writer http.ResponseWriter, request *http.Request) {
     var r = &Req{}
     _ = json.NewDecoder(request.Body).Decode(r)
     _ = request.Body.Close()
-    var err = r.Validate()
+    var err = r.Validate(request.Header)
     fmt.Printf("%v\n", err)
 }
 
@@ -100,7 +101,7 @@ func main() {
     })
     var validator = passport.NewValidator(
         passport.WithLang(passport.Chinese.String()),
-        passport.WithAutoTranslate(),
+        passport.WithAutoTranslate(true),
     )
     var err = validator.Validate(
         passport.String("Req.Name", "").Required(),

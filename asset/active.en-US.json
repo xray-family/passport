@@ -38,7 +38,7 @@
   "StringValue.MatchString": "{{.Key}} shall match the given regular expression",
   "StringValue.Numeric": "{{.Key}} must consist of numbers",
   "StringValue.ParseRegexp": "Regular expression parsing failed.",
-  "StringValue.Required": "{{.Key}}  cannot be empty",
+  "StringValue.Required": "{{.Key}} cannot be empty",
   "StringValue.URL": "{{.Key}} must match URL format",
   "StringValue.Uppercase": "{{.Key}} must consist of uppercase letters"
 }

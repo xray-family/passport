@@ -19,9 +19,9 @@ func WithLang(langs ...string) Option {
 }
 
 // WithAutoTranslate automatic translation of key names
-func WithAutoTranslate() Option {
+func WithAutoTranslate(enabled bool) Option {
 	return func(c *config) {
-		c.AutoTranslate = true
+		c.AutoTranslate = enabled
 	}
 }
 
