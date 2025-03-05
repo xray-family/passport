@@ -34,7 +34,7 @@ func TestValidate(t *testing.T) {
 
 	t.Run("", func(t *testing.T) {
 		r := Req{Name: "aha", Age: 20}
-		err := NewValidator().Validate(
+		err := NewValidator(nil).Validate(
 			Ordered("Name", r.Name).Required(),
 			Ordered("Age", r.Age).Gte(18),
 		)
@@ -43,10 +43,10 @@ func TestValidate(t *testing.T) {
 
 	t.Run("", func(t *testing.T) {
 		r := Req{Name: "aha", Age: 15}
-		err := NewValidator(WithLang("zh-CN")).Validate(
+		err := NewValidator(nil).Validate(
 			Ordered("Name", r.Name).Required(),
 			Ordered("Age", r.Age).Gte(18),
 		)
-		assert.Equal(t, err.Error(), "Age须大于等于18")
+		assert.Equal(t, err.Error(), "Age must be greater than or equal to 18")
 	})
 }

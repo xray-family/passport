@@ -15,10 +15,10 @@ func TestSliceValue_Required(t *testing.T) {
 	assert.Error(t, Slice("name", a2).Gt(4).Required().Err())
 
 	t.Run("", func(t *testing.T) {
-		var err = NewValidator(WithLang("zh-CN")).Validate(
+		var err = NewValidator(nil).Validate(
 			Slice("name", a2).Required(),
 		)
-		assert.Equal(t, err.Error(), "name不能为空")
+		assert.Equal(t, err.Error(), "name cannot be empty")
 	})
 
 	t.Run("", func(t *testing.T) {
@@ -38,10 +38,10 @@ func TestSliceValue_Required(t *testing.T) {
 			ID:    "Name",
 			Other: "名字",
 		})
-		err := NewValidator(WithAutoTranslate(true), WithLang(Chinese.String())).Validate(
+		err := NewValidator(nil).Validate(
 			Slice("Name", a2).Required(),
 		)
-		assert.Equal(t, err.Error(), "名字不能为空")
+		assert.Equal(t, err.Error(), "Name cannot be empty")
 	})
 }
 

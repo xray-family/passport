@@ -1,5 +1,7 @@
 package passport
 
+import "net/http"
+
 type Value interface {
 	setConf(conf *config)
 	Err() error
@@ -9,8 +11,8 @@ type Validator struct {
 	conf *config
 }
 
-func NewValidator(options ...Option) *Validator {
-	options = append(options, withInit())
+func NewValidator(r *http.Request, options ...Option) *Validator {
+	options = append(options, withLang(r), withInit())
 	var conf = new(config)
 	for _, f := range options {
 		f(conf)

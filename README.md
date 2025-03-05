@@ -30,9 +30,8 @@ type Req struct {
     Roles []int  `json:"roles"`
 }
 
-func (c *Req) Validate(h http.Header) error {
-    opt := passport.WithLang(h.Get("Accept-Language"))
-    return passport.NewValidator(opt).Validate(
+func (c *Req) Validate(r *http.Request) error {
+    return passport.NewValidator(r).Validate(
         passport.String("Name", c.Name).Required().Alphabet(),
         passport.Ordered("Age", c.Age).Gte(18),
         passport.Slice("Roles", c.Roles).Required(),
@@ -43,7 +42,7 @@ func Handle(writer http.ResponseWriter, request *http.Request) {
     var r = &Req{}
     _ = json.NewDecoder(request.Body).Decode(r)
     _ = request.Body.Close()
-    var err = r.Validate(request.Header)
+    var err = r.Validate(request)
     fmt.Printf("%v\n", err)
 }
 
@@ -51,6 +50,7 @@ func main() {
     http.HandleFunc("/", Handle)
     http.ListenAndServe(":8080", nil)
 }
+
 ```
 
 ### Advanced
@@ -75,7 +75,7 @@ func main() {
         ID:    "Phone",
         Other: "Failed to verify cell phone number",
     })
-    var validator = passport.NewValidator()
+    var validator = passport.NewValidator(nil)
     var err = validator.Validate(
         passport.String("phone number", "xyz").Customize("Phone", isPhone),
     )
@@ -83,29 +83,3 @@ func main() {
 }
 ```
 
-#### Field Translations
-
-```go
-package main
-
-import (
-    "fmt"
-    "github.com/nicksnyder/go-i18n/v2/i18n"
-    "github.com/xray-family/passport"
-)
-
-func main() {
-    _ = passport.GetBundle().AddMessages(passport.Chinese, &i18n.Message{
-        ID:    "Req.Name",
-        Other: "用户名",
-    })
-    var validator = passport.NewValidator(
-        passport.WithLang(passport.Chinese.String()),
-        passport.WithAutoTranslate(true),
-    )
-    var err = validator.Validate(
-        passport.String("Req.Name", "").Required(),
-    )
-    fmt.Printf("%v\n", err)
-}
-```

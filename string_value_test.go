@@ -6,9 +6,16 @@ import (
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/text/language"
+	"net/http"
 	"regexp"
 	"testing"
 )
+
+func newReq(lang string) *http.Request {
+	req, _ := http.NewRequest(http.MethodGet, "http://localhost", nil)
+	req.Header.Set("Accept-Language", lang)
+	return req
+}
 
 func TestStringValue_Required(t *testing.T) {
 	assert.Error(t, String("name", "").Required().Err())
@@ -18,21 +25,10 @@ func TestStringValue_Required(t *testing.T) {
 	assert.Error(t, String("name", "\n").Required().Err())
 
 	t.Run("", func(t *testing.T) {
-		var err = NewValidator(WithLang("zh-CN")).Validate(
-			String("名字", "").Required(),
-		)
-		assert.Equal(t, err.Error(), "名字不能为空")
-	})
-
-	t.Run("", func(t *testing.T) {
-		_ = GetBundle().AddMessages(Chinese, &i18n.Message{
-			ID:    "Name",
-			Other: "名字",
-		})
-		err := NewValidator(WithAutoTranslate(true), WithLang(Chinese.String())).Validate(
+		var err = NewValidator(newReq("zh-CN")).Validate(
 			String("Name", "").Required(),
 		)
-		assert.Equal(t, err.Error(), "名字不能为空")
+		assert.Equal(t, err.Error(), "Name 不能为空")
 	})
 }
 

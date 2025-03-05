@@ -1,27 +1,24 @@
 package passport
 
-import "github.com/nicksnyder/go-i18n/v2/i18n"
+import (
+	"github.com/nicksnyder/go-i18n/v2/i18n"
+	"net/http"
+)
 
 type config struct {
-	loc           *i18n.Localizer
-	AutoTranslate bool
+	loc *i18n.Localizer
 }
 
 type Option func(c *config)
 
-// WithLang set languages
-func WithLang(langs ...string) Option {
+// withLang set languages
+func withLang(r *http.Request) Option {
 	return func(c *config) {
-		if len(langs) > 0 {
-			c.loc = i18n.NewLocalizer(_bundle, langs...)
+		if r != nil {
+			lang := r.FormValue("lang")
+			accept := r.Header.Get("Accept-Language")
+			c.loc = i18n.NewLocalizer(GetBundle(), lang, accept)
 		}
-	}
-}
-
-// WithAutoTranslate automatic translation of key names
-func WithAutoTranslate(enabled bool) Option {
-	return func(c *config) {
-		c.AutoTranslate = enabled
 	}
 }
 

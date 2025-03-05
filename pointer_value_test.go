@@ -16,10 +16,10 @@ func TestPointerValue_Required(t *testing.T) {
 	assert.Nil(t, Pointer("req", new(http.Request)).Required().Err())
 
 	t.Run("", func(t *testing.T) {
-		var err = NewValidator(WithLang("zh-CN")).Validate(
+		var err = NewValidator(nil).Validate(
 			Pointer[*http.Request]("名字", nil).Required(),
 		)
-		assert.Equal(t, err.Error(), "名字不能为空")
+		assert.Equal(t, err.Error(), "名字 cannot be empty")
 	})
 
 	t.Run("", func(t *testing.T) {
@@ -34,10 +34,10 @@ func TestPointerValue_Required(t *testing.T) {
 			Other: "名字",
 		})
 		var r *http.Request
-		err := NewValidator(WithAutoTranslate(true), WithLang(Chinese.String())).Validate(
+		err := NewValidator(nil).Validate(
 			Pointer("Name", r).Required(),
 		)
-		assert.Equal(t, err.Error(), "名字不能为空")
+		assert.Equal(t, err.Error(), "Name cannot be empty")
 	})
 }
 

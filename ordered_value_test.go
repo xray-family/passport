@@ -18,10 +18,10 @@ func TestOrderedValue_Required(t *testing.T) {
 			ID:    "Name",
 			Other: "名字",
 		})
-		err := NewValidator(WithAutoTranslate(true), WithLang(Chinese.String())).Validate(
+		err := NewValidator(nil).Validate(
 			Ordered("Name", "").Required(),
 		)
-		assert.Equal(t, err.Error(), "名字不能为空")
+		assert.Equal(t, err.Error(), "Name cannot be empty")
 	})
 }
 
@@ -59,7 +59,7 @@ func TestOrderedValue_Include(t *testing.T) {
 
 func TestOrderedValue_Err(t *testing.T) {
 	t.Run("", func(t *testing.T) {
-		var validator = NewValidator(WithLang("en-US"))
+		var validator = NewValidator(nil)
 		var v = Ordered("age", 1).Gt(18)
 		v.setConf(validator.conf)
 		assert.Error(t, v.Err())

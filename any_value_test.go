@@ -76,11 +76,11 @@ func TestAnyValue_Customize(t *testing.T) {
 			ID:    "Name",
 			Other: "名字",
 		})
-		err := NewValidator(WithAutoTranslate(true), WithLang(Chinese.String())).Validate(
+		err := NewValidator(newReq("zh-CN")).Validate(
 			Any("Name", "").Customize("StringValue.Required", func(a string) bool {
 				return false
 			}),
 		)
-		assert.Equal(t, err.Error(), "名字不能为空")
+		assert.Equal(t, err.Error(), "Name 不能为空")
 	})
 }

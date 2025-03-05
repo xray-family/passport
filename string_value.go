@@ -62,12 +62,6 @@ func (c *StringValue[T]) Err() error {
 	if c.err != nil {
 		return c.err
 	}
-	if c.conf.AutoTranslate {
-		if str, err := c.conf.loc.Localize(&i18n.LocalizeConfig{MessageID: c.key}); err == nil {
-			td := c.locConf.TemplateData.(map[string]any)
-			td["Key"] = str
-		}
-	}
 	str, err := c.conf.loc.Localize(c.locConf)
 	if err != nil {
 		c.err = err
