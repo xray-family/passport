@@ -1,4 +1,4 @@
-module github.com/xray-family/passport
+module github.com/xray-family/validator
 
 go 1.21
 

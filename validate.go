@@ -1,8 +1,8 @@
-package passport
+package validator
 
 import "net/http"
 
-type Value interface {
+type Valuer interface {
 	setConf(conf *config)
 	Err() error
 }
@@ -20,7 +20,7 @@ func NewValidator(r *http.Request, options ...Option) *Validator {
 	return &Validator{conf: conf}
 }
 
-func (c *Validator) Validate(values ...Value) error {
+func (c *Validator) Validate(values ...Valuer) error {
 	for _, item := range values {
 		item.setConf(c.conf)
 		if err := item.Err(); err != nil {
@@ -30,7 +30,7 @@ func (c *Validator) Validate(values ...Value) error {
 	return nil
 }
 
-func Validate(values ...Value) error {
+func Validate(values ...Valuer) error {
 	for _, item := range values {
 		if err := item.Err(); err != nil {
 			return err

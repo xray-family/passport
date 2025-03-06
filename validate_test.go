@@ -1,4 +1,4 @@
-package passport
+package validator
 
 import (
 	"github.com/stretchr/testify/assert"

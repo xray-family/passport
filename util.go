@@ -1,4 +1,4 @@
-package passport
+package validator
 
 import (
 	"net"

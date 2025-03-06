@@ -1,15 +1,15 @@
-## Passport
+## validator
 
-[![Go Test](https://github.com/xray-family/passport/actions/workflows/go.yml/badge.svg)](https://github.com/xray-family/passport/actions/workflows/go.yml) [![Coverage Statusd][1]][2]
+[![Go Test](https://github.com/xray-family/validator/actions/workflows/go.yml/badge.svg)](https://github.com/xray-family/validator/actions/workflows/go.yml) [![Coverage Statusd][1]][2]
 
-[1]: https://codecov.io/gh/lxzan/passport/branch/main/graph/badge.svg
+[1]: https://codecov.io/gh/lxzan/validator/branch/main/graph/badge.svg
 
-[2]: https://codecov.io/gh/lxzan/passport
+[2]: https://codecov.io/gh/lxzan/validator
 
 ### Install
 
 ```bash
-go get -v github.com/xray-family/passport@latest
+go get -v github.com/xray-family/validator@latest
 ```
 
 ### Quick Start
@@ -20,7 +20,7 @@ package main
 import (
     "encoding/json"
     "fmt"
-    "github.com/xray-family/passport"
+    "github.com/xray-family/validator"
     "net/http"
 )
 
@@ -31,10 +31,10 @@ type Req struct {
 }
 
 func (c *Req) Validate(r *http.Request) error {
-    return passport.NewValidator(r).Validate(
-        passport.String("Name", c.Name).Required().Alphabet(),
-        passport.Ordered("Age", c.Age).Gte(18),
-        passport.Slice("Roles", c.Roles).Required(),
+    return validator.NewValidator(r).Validate(
+        validator.String("Name", c.Name).Required().Alphabet(),
+        validator.Ordered("Age", c.Age).Gte(18),
+        validator.Slice("Roles", c.Roles).Required(),
     )
 }
 
@@ -63,7 +63,7 @@ package main
 import (
     "fmt"
     "github.com/nicksnyder/go-i18n/v2/i18n"
-    "github.com/xray-family/passport"
+    "github.com/xray-family/validator"
 )
 
 func isPhone(s string) bool {
@@ -71,13 +71,13 @@ func isPhone(s string) bool {
 }
 
 func main() {
-    _ = passport.GetBundle().AddMessages(passport.English, &i18n.Message{
+    _ = validator.GetBundle().AddMessages(validator.English, &i18n.Message{
         ID:    "Phone",
         Other: "Failed to verify cell phone number",
     })
-    var validator = passport.NewValidator(nil)
+    var validator = validator.NewValidator(nil)
     var err = validator.Validate(
-        passport.String("phone number", "xyz").Customize("Phone", isPhone),
+        validator.String("phone number", "xyz").Customize("Phone", isPhone),
     )
     fmt.Printf("%v\n", err)
 }
